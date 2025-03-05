@@ -1,7 +1,7 @@
 const wppconnect = require('@wppconnect-team/wppconnect');
 const firebaseadmin = require("firebase-admin");
 
-const firebaseServiceAccount = require('./yourcredentialsfile.json');
+const firebaseServiceAccount = require('./whatsappbotbd-firebase-adminsdk-fbsvc-955f7b9556.json');
 firebaseadmin.initializeApp({
     credential: firebaseadmin.credential.cert(firebaseServiceAccount)
 });
@@ -34,22 +34,29 @@ function stages(client, message) {
         return; // Ignora mensagens que não contenham "pedido" e que não estejam no fluxo
     }
 
-    let stage = userStages[message.from] || 'Olá';
+    let stage = userStages[message.from] || 'Olá sou o bot do Warleyson';
 
     switch (stage) {
         case 'Nome':
             const nome = message.body;
             sendWppMessage(client, message.from, `Obrigado, ${nome}.`);
-            sendWppMessage(client, message.from, 'Digite seu *CPF*:');
-            userStages[message.from] = 'CPF';
+            sendWppMessage(client, message.from, 'Digite seu *Apelido*:');
+            userStages[message.from] = 'Apelido';
             break;
 
-        case 'CPF':
+        case 'Apelido':
             const cpf = message.body;
-            sendWppMessage(client, message.from, `Obrigado por informar seu CPF: ${cpf}`);
+            sendWppMessage(client, message.from, `Agora que somos intimos, vou te chamar de: ${cpf}`);
+            sendWppMessage(client, message.from, 'Agora me diga o que quer pedir hoje.');
+            userStages[message.from] = 'Pedido';
+            break;
+
+        case 'Pedido':
+            const pedido = message.body;
+            sendWppMessage(client, message.from, `Ok, você acaba de pedir por: ${pedido}`);
             sendWppMessage(client, message.from, 'Seu pedido foi registrado. Atendimento finalizado.');
             userStages[message.from] = 'Fim';
-            break;
+                break;
 
         case 'Fim':
             sendWppMessage(client, message.from, 'Seu atendimento já foi finalizado. Caso precise de algo, envie "pedido" novamente.');
@@ -57,7 +64,8 @@ function stages(client, message) {
 
         default: // Olá - Início do atendimento
             console.log('*Usuário atual* from: ' + message.from);
-            sendWppMessage(client, message.from, 'Bem-vindo ao Robô de Whatsapp do AppBasicão!');
+            saveUser(message);
+            sendWppMessage(client, message.from, 'Bem-vindo ao teste do bot do whatsapp do *Warleyson*!');
             sendWppMessage(client, message.from, 'Digite seu *NOME*:');
             userStages[message.from] = 'Nome';
     }
