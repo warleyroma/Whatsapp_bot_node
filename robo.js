@@ -1,4 +1,12 @@
 const wppconnect = require('@wppconnect-team/wppconnect');
+const firebaseadmin = require("firebase-admin");
+
+const firebaseServiceAccount = require('./yourcredentialsfile.json');
+firebaseadmin.initializeApp({
+    credential: firebaseadmin.credential.cert(firebaseServiceAccount)
+});
+const db = firebaseadmin.firestore();
+
 
 var userStages = [];
 
@@ -65,3 +73,5 @@ function sendWppMessage(client, sendTo, text) {
             console.error('Erro ao enviar mensagem:', erro);
         });
 }
+
+
