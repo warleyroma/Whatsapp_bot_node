@@ -74,4 +74,13 @@ function sendWppMessage(client, sendTo, text) {
         });
 }
 
+async function saveUser(message) {
+    let user = {
+        'pushname': (message['sender']['pushname'] != undefined) ? message['sender']['pushname'] : '',
+        'whatsapp': (message.from).replace(/[^\d]+/g, '')
+    }
+    let newUser = await db.collection('usuarios').add(user);
+    return newUser;
+}
+
 
