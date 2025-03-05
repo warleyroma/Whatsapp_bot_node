@@ -1,12 +1,17 @@
+/**
+ CONEXÃO COM O BANCO DE DADOS
+
+ const firebaseadmin = require("firebase-admin");
+ 
+ const firebaseServiceAccount = require('./suacredencial.json');
+ firebaseadmin.initializeApp({
+     credential: firebaseadmin.credential.cert(firebaseServiceAccount)
+ });
+ const db = firebaseadmin.firestore();
+ */
+
+
 const wppconnect = require('@wppconnect-team/wppconnect');
-const firebaseadmin = require("firebase-admin");
-
-const firebaseServiceAccount = require('./whatsappbotbd-firebase-adminsdk-fbsvc-955f7b9556.json');
-firebaseadmin.initializeApp({
-    credential: firebaseadmin.credential.cert(firebaseServiceAccount)
-});
-const db = firebaseadmin.firestore();
-
 
 var userStages = [];
 
@@ -87,7 +92,7 @@ async function saveUser(message) {
         'pushname': (message['sender']['pushname'] != undefined) ? message['sender']['pushname'] : '',
         'whatsapp': (message.from).replace(/[^\d]+/g, '')
     }
-    let newUser = await db.collection('usuarios').add(user);
+    let newUser = await db.collection('clientes').add(user);
     return newUser;
 }
 
