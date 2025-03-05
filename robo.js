@@ -9,48 +9,59 @@ wppconnect.create({
 })
     .then((client) =>
         client.onMessage((message) => {
-            console.log('Mensagem digitada pelo usuário: ' + message.body);
+            console.log('Mensagem recebida: ' + message.body);
             stages(client, message);
         }))
     .catch((error) =>
         console.log(error));
 
-
-//  Stages = Olá  >>  Nome  >>  CPF  >> Fim
 function stages(client, message) {
-    stage = userStages[message.from];
+    // Ignorar mensagens de grupos
+    if (message.isGroupMsg) {
+        return;
+    }
+
+    // Verifica se a mensagem contém a palavra "pedido" para iniciar o atendimento
+    if (!message.body.toLowerCase().includes("pedido") && !userStages[message.from]) {
+        return; // Ignora mensagens que não contenham "pedido" e que não estejam no fluxo
+    }
+
+    let stage = userStages[message.from] || 'Olá';
+
     switch (stage) {
         case 'Nome':
             const nome = message.body;
-            sendWppMessage(client, message.from, 'Obrigada, ' + nome);
+            sendWppMessage(client, message.from, `Obrigado, ${nome}.`);
             sendWppMessage(client, message.from, 'Digite seu *CPF*:');
             userStages[message.from] = 'CPF';
             break;
+
         case 'CPF':
             const cpf = message.body;
-            sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + cpf);
-            sendWppMessage(client, message.from, 'Fim');
+            sendWppMessage(client, message.from, `Obrigado por informar seu CPF: ${cpf}`);
+            sendWppMessage(client, message.from, 'Seu pedido foi registrado. Atendimento finalizado.');
             userStages[message.from] = 'Fim';
             break;
+
         case 'Fim':
-            sendWppMessage(client, message.from, 'Fim');
+            sendWppMessage(client, message.from, 'Seu atendimento já foi finalizado. Caso precise de algo, envie "pedido" novamente.');
             break;
-        default: // Olá 
-            console.log('*Usuário atual* from:' + message.from);
-            sendWppMessage(client, message.from, 'Bem vindo ao Robô de Whatsapp do AppBasicão!');
+
+        default: // Olá - Início do atendimento
+            console.log('*Usuário atual* from: ' + message.from);
+            sendWppMessage(client, message.from, 'Bem-vindo ao Robô de Whatsapp do AppBasicão!');
             sendWppMessage(client, message.from, 'Digite seu *NOME*:');
             userStages[message.from] = 'Nome';
     }
 }
 
-
 function sendWppMessage(client, sendTo, text) {
     client
         .sendText(sendTo, text)
-        .then((result) => {
-            // console.log('SUCESSO: ', result); 
+        .then(() => {
+            console.log('Mensagem enviada para:', sendTo);
         })
         .catch((erro) => {
-            console.error('ERRO: ', erro);
+            console.error('Erro ao enviar mensagem:', erro);
         });
 }
